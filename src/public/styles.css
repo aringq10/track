@@ -224,6 +224,10 @@ a:focus-visible {
   text-overflow: ellipsis; /* long names truncate, header stays one row */
 }
 
+.unassigned {
+  color: var(--muted);
+}
+
 .entries-item-time {
   grid-area: time;
   color: var(--muted);

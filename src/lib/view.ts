@@ -13,7 +13,7 @@ export interface PageView {
 }
 
 export interface TimeEntryView {
-  projectName: string,
+  projectName: string | null,
   start: string,
   stop: string,
   duration: string,
@@ -32,10 +32,10 @@ export interface ProjectSummaryView {
 
 export function toView(t: TimeEntryExt): TimeEntryView {
   return {
-    projectName: t.projectName ?? "NaN",
+    projectName: t.projectName,
     start: formatTime(t.start),
-    stop: t.stop ? formatTime(t.stop) : "Nan",
-    duration: t.duration ? formatDuration(t.duration) : "NaN",
+    stop: t.stop ? formatTime(t.stop) : formatTime(),
+    duration: t.duration ? formatDuration(t.duration) : formatDuration(),
     description: t.description ?? ""
   };
 }
@@ -66,11 +66,16 @@ export function groupTimeEntries(
 
   return [...groups.entries()]
     .sort(([a], [b]) => b.localeCompare(a))
-    .map(([date, bucket]) => ({
-      date,
-      totalDuration: formatDuration(bucket.reduce((p, c) => {
-        return p + (c.duration ?? 0)
-      }, 0)),
-      entries: bucket
-    }));
+    .map(([date, bucket]) => {
+      let allNull = true;
+      const dur = formatDuration(bucket.reduce((p, c) => {
+        if (c.duration !== null) allNull = false;
+        return p + (c.duration ?? 0);
+      }, 0))
+      return {
+        date,
+        totalDuration: allNull ? formatDuration() : dur,
+        entries: bucket
+      }
+    });
 }

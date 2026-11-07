@@ -8,7 +8,10 @@ div(id="entries")
         each e in d.entries
           div(class="entries-item")
             div(class="entries-item-header")
-              div(class="entries-item-project") #{e.projectName}
+              if e.projectName == undefined
+                div(class="entries-item-project unassigned") unassigned
+              else
+                div(class="entries-item-project") #{e.projectName}
               div(class="entries-item-time") #{e.start} - #{e.stop}
               div(class="entries-item-duration") #{e.duration}
             if e.description

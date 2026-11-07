@@ -5,11 +5,13 @@ export function formatDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function formatTime(d: Date): string {
+export function formatTime(d?: Date): string {
+  if (d === undefined) return "--:--:--";
   return d.toISOString().slice(11, 19);
 }
 
-export function formatDuration(total: number): string {
+export function formatDuration(total?: number): string {
+  if (total === undefined) return "--:--:--";
   total = Math.trunc(total);
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
@@ -17,7 +19,7 @@ export function formatDuration(total: number): string {
   const hourString = h.toString().padStart(2, "0");
   const minuteString = m.toString().padStart(2, "0");
   const secondString = s.toString().padStart(2, "0");
-  return `${hourString}h${minuteString}m${secondString}s`;
+  return `${hourString}:${minuteString}:${secondString}`;
 }
 
 /**
