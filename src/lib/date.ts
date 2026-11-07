@@ -20,6 +20,9 @@ export function formatDuration(total: number): string {
   return `${hourString}h${minuteString}m${secondString}s`;
 }
 
+/**
+ * Returns a Date if `s` is a valid date of YYYY-MM-DD format, otherwise null
+ */
 export function parseDate(s: string): Date | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
   const d = new Date(s);
@@ -27,7 +30,11 @@ export function parseDate(s: string): Date | null {
   return valid ? d : null;
 }
 
+/**
+ * Returns the number days between `from` and `to`, inclusive.
+ */
 export function dayRange(from: Date, to: Date): number {
-  const delta = to.getTime() - from.getTime();
-  return Math.trunc(delta / DAY) + 1;
+  const f = Math.trunc(from.getTime() / DAY) * DAY;
+  const t = Math.trunc(to.getTime() / DAY) * DAY;
+  return (t - f) / DAY + 1;
 }

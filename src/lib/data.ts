@@ -120,13 +120,12 @@ export class Data {
 
   getTimeEntries(range: { from: Date, to: Date }): TimeEntryExt[] {
     const l = this.database.prepare(`
-      SELECT
-        *,
-        unixepoch(stop) - unixepoch(start) AS duration
+      SELECT *, unixepoch(stop) - unixepoch(start) AS duration
       FROM time_entry
       LEFT JOIN project
         ON project_id=project.id
-      WHERE date(start) >= ? AND date(start) <= ?`
+      WHERE date(start) >= ? AND date(start) <= ?
+      ORDER BY start`
       ).all(formatDate(range.from), formatDate(range.to));
 
     return l.map(t => {

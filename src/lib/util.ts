@@ -22,13 +22,3 @@ export async function select(options: string[]): Promise<number> {
 
   return selection;
 }
-
-export async function getFilename(): Promise<string> {
-  const rl = readline.createInterface({ input, output });
-
-  const fn = await rl.question("Filename: ");
-
-  rl.close();
-
-  return fn;
-}
