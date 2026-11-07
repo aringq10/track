@@ -284,6 +284,10 @@ a:focus-visible {
   width: 100%;
 }
 
+#summary-empty {
+  font-weight: 600;
+}
+
 .summary-table {
   width: 100%;
   border-collapse: collapse;
