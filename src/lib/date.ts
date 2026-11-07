@@ -8,12 +8,14 @@ export function formatTime(d: Date): string {
   return d.toISOString().slice(11, 19);
 }
 
-export function formatDuration(ms: number): string {
-  const total = Math.floor(Math.abs(ms) / 1000);
+export function formatDuration(total: number): string {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
-  return `${h.toString().padStart(2, "0")}h${m.toString().padStart(2, "0")}m${s.toString().padStart(2, "0")}s`;
+  const hourString = h.toString().padStart(2, "0");
+  const minuteString = m.toString().padStart(2, "0");
+  const secondString = s.toString().padStart(2, "0");
+  return `${hourString}h${minuteString}m${secondString}s`;
 }
 
 export function parseDate(s: string): Date | null {
