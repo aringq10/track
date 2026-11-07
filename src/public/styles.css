@@ -52,7 +52,7 @@ a:focus-visible {
 }
 
 .entries-date, .entries-total, .entries-item-time,
-.entries-item-duration, input[type="date"] {
+.entries-item-duration, input[type="date"], .summary-value {
   font-family: "Roboto Mono";
 }
 
@@ -187,7 +187,7 @@ a:focus-visible {
     padding-top: 0.75rem; /* aligns with first item's text */
   }
 
-  #filter, #entries-empty {
+  #filter, #entries-empty, #summary-empty {
     padding-left: calc(176px + 1.5rem);
   }
 }
@@ -272,4 +272,114 @@ a:focus-visible {
 #error-code {
   font-size: 4rem;
   font-weight: 600;
+}
+
+/* SUMMARY */
+
+#summary {
+  width: 100%;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.summary-table .summary-corner {
+  visibility: hidden;
+}
+
+.summary-table th,
+.summary-table td {
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.summary-table tbody th {
+  padding-left: 0;
+}
+
+.summary-table thead th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.summary-project {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.summary-value {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Wide: project column matches the entries header, values match the entries item */
+@media (min-width: 800px) {
+  .summary-table {
+    table-layout: fixed;
+  }
+
+  .summary-table th:first-child {
+    width: 176px;
+  }
+
+  /* Skip the same 1.5rem gap used between .entries-header and .entries-list */
+  .summary-table th:nth-child(2),
+  .summary-table td:nth-child(2) {
+    padding-left: 1.5rem;
+  }
+}
+
+/* Narrow: transpose the table so projects run across the top */
+@media (max-width: 600px) {
+  #summary {
+    overflow-x: auto;
+  }
+
+  .summary-table .summary-corner {
+    visibility: initial;
+  }
+
+  .summary-table {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: auto repeat(4, auto);
+    grid-template-columns: max-content;
+    grid-auto-columns: 140px;
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .summary-table thead,
+  .summary-table tbody,
+  .summary-table tr {
+    display: contents;
+  }
+
+  .summary-table th,
+  .summary-table td {
+    display: flex;
+    align-items: center;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .summary-table th:first-child,
+  .summary-table td:first-child {
+    padding-left: 0.6rem;
+  }
+
+  /* Project names become the top header row */
+  .summary-row > .summary-project {
+    justify-content: start;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }

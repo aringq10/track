@@ -1,18 +1,20 @@
 div(id="summary")
   if projects.length !== 0
-    table
-      tr
-        th
-        th tot dur
-        th act / tot
-        th dur / tot
-        th dur / act
-      each p in projects
+    table(class="summary-table")
+      thead
         tr
-          td #{p.projectName}
-          td #{p.totalDuration}
-          td #{p.activeDays} / #{p.totalDays} #{p.pctgActTot}%
-          td #{p.durPerDay}
-          td #{p.durPerAct}
+          th(class="summary-corner") (#{projects.length})
+          th(class="summary-metric") tot dur
+          th(class="summary-metric") act / tot
+          th(class="summary-metric") dur / tot
+          th(class="summary-metric") dur / act
+      tbody
+        each p in projects
+          tr(class="summary-row")
+            th(class="summary-project" scope="row") #{p.projectName}
+            td(class="summary-value") #{p.totalDuration}
+            td(class="summary-value") #{p.activeDays}/#{p.totalDays} #{p.pctgActTot}%
+            td(class="summary-value") #{p.durPerDay}
+            td(class="summary-value") #{p.durPerAct}
   else
-      div(id="summary-empty") No summaries
+    div(id="summary-empty") No summaries
