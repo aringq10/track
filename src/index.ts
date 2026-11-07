@@ -1,8 +1,7 @@
 import { Data  } from './lib/data.js';
 import express from "express";
-import { formatDate, parseDate, WEEK } from './lib/date.js';
+import { parseDate, WEEK } from './lib/date.js';
 import path from 'node:path';
-import { groupTimeEntries, toView } from './lib/view.js';
 
 const PORT = 4321;
 
@@ -45,12 +44,7 @@ app.get('/', (req, res) => {
     const filter = bothUndefined
       ? { from: new Date(now.getTime() - WEEK), to: now}
       : { from: startDate!, to: endDate! };
-    res.render('index', {
-      days: groupTimeEntries(data.getTimeEntries(filter)).
-        map(({ date, total, items }) => ({ date, total, items: items.map(toView) })),
-      startDate: formatDate(filter.from),
-      endDate: formatDate(filter.to)
-    });
+    res.render('index', data.getView(filter));
   }
 });
 

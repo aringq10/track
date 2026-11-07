@@ -1,5 +1,16 @@
-import { TimeEntryExt } from "./data.js";
+import { ProjectSummary, TimeEntryExt } from "./data.js";
 import { formatDate, formatDuration, formatTime } from "./date.js";
+
+export interface PageView {
+  startDate: string,
+  endDate: string,
+  projects: ProjectSummaryView[],
+  entriesPerDay: {
+    date: string,
+    totalDuration: string,
+    entries: TimeEntryView[]
+  }[]
+}
 
 export interface TimeEntryView {
   projectName: string,
@@ -7,6 +18,16 @@ export interface TimeEntryView {
   stop: string,
   duration: string,
   description: string
+}
+
+export interface ProjectSummaryView {
+  projectName: string,
+  totalDuration: string,
+  totalDays: string,
+  activeDays: string,
+  pctgActTot: string, // activeDays / totalDays
+  durPerDay: string,
+  durPerAct: string
 }
 
 export function toView(t: TimeEntryExt): TimeEntryView {
@@ -19,9 +40,22 @@ export function toView(t: TimeEntryExt): TimeEntryView {
   };
 }
 
+export function summaryToView(p: ProjectSummary, totalDays: number): ProjectSummaryView {
+  const pctgActTot = (100 * (p.activeDays / totalDays)).toFixed(1);
+  return {
+    projectName: p.projectName,
+    totalDuration: formatDuration(p.totalDuration),
+    totalDays: totalDays.toString(),
+    activeDays: p.activeDays.toString(),
+    pctgActTot,
+    durPerDay: formatDuration(p.totalDuration / totalDays),
+    durPerAct: formatDuration(p.totalDuration / p.activeDays)
+  }
+}
+
 export function groupTimeEntries(
   items: TimeEntryExt[]
-): { date: string, total: string, items: TimeEntryExt[] }[] {
+): { date: string, totalDuration: string, entries: TimeEntryExt[] }[] {
   const groups = new Map<string, TimeEntryExt[]>();
   for (const item of items) {
     const key = formatDate(item.start);
@@ -34,9 +68,9 @@ export function groupTimeEntries(
     .sort(([a], [b]) => b.localeCompare(a))
     .map(([date, bucket]) => ({
       date,
-      total: formatDuration(bucket.reduce((p, c) => {
+      totalDuration: formatDuration(bucket.reduce((p, c) => {
         return p + (c.duration ?? 0)
       }, 0)),
-      items: bucket
+      entries: bucket
     }));
 }
