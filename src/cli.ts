@@ -1,7 +1,6 @@
 import { open } from 'node:fs/promises';
 import { exit } from 'node:process';
 import path, { resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { Data } from './lib/data.js';
 import { TimeEntriesParams, Toggl } from './lib/toggl.js';
 import { Project, TimeEntry } from './lib/model.js';
@@ -15,9 +14,7 @@ const dir = import.meta.dirname;
 const token = process.env.API_TOKEN;
 if (!token) throw new Error("API_TOKEN is not set");
 
-const database = new DatabaseSync(path.join(dir, "../main.db"));
-
-const data = new Data(database);
+const data = new Data(path.join(dir, "../main.db"));
 const api = new Toggl(token);
 
 type Action = [

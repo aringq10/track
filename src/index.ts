@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { DatabaseSync } from 'node:sqlite';
 import { Data  } from './lib/data.js';
 import express from "express";
 import { formatDate, parseDate, WEEK } from './lib/date.js';
@@ -13,11 +11,7 @@ const dir = import.meta.dirname;
 const token = process.env.API_TOKEN;
 if (!token) throw new Error("API_TOKEN is not set");
 
-const database = new DatabaseSync(path.join(dir, "../main.db"));
-const schema = readFileSync(path.join(dir, "sql/schema.sql")).toString();
-database.exec(schema);
-
-const data = new Data(database);
+const data = new Data(path.join(dir, "../main.db"), path.join(dir, "sql/schema.sql"));
 
 /* express server */
 

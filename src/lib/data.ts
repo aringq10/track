@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { Project, TimeEntry } from './model.js';
 import { Toggl } from './toggl.js';
 import { formatDate } from './date.js';
+import { readFileSync } from 'fs';
 
 export type TimeEntryExt = Omit<TimeEntry, "id" | "project_id"> & {
   projectName: string | null,
@@ -11,8 +12,12 @@ export type TimeEntryExt = Omit<TimeEntry, "id" | "project_id"> & {
 export class Data {
   database: DatabaseSync;
 
-  constructor(d: DatabaseSync) {
-    this.database = d;
+  constructor(dbPath: string, schemaPath?: string) {
+    this.database = new DatabaseSync(dbPath);
+    if (schemaPath !== undefined) {
+      const schema = readFileSync(schemaPath).toString();
+      this.database.exec(schema);
+    }
   }
 
   async update(token: string) {
