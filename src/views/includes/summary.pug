@@ -1,0 +1,18 @@
+div(id="summary")
+  if projects.length !== 0
+    table
+      tr
+        th
+        th tot dur
+        th act / tot
+        th dur / tot
+        th dur / act
+      each p in projects
+        tr
+          td #{p.projectName}
+          td #{p.totalDuration}
+          td #{p.activeDays} / #{p.totalDays} #{p.pctgActTot}%
+          td #{p.durPerDay}
+          td #{p.durPerAct}
+  else
+      div(id="summary-empty") No summaries

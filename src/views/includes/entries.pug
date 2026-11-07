@@ -1,11 +1,11 @@
 div(id="entries")
-  each d in days
+  each d in entriesPerDay
     div(class="entries-group")
       div(class="entries-header")
         div(class="entries-date") #{d.date}
-        div(class="entries-total") #{d.total}
+        div(class="entries-total") #{d.totalDuration}
       div(class="entries-list")
-        each e in d.items
+        each e in d.entries
           div(class="entries-item")
             div(class="entries-item-header")
               div(class="entries-item-project") #{e.projectName}
