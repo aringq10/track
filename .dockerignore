@@ -1,0 +1,9 @@
+*
+
+!src
+!sql
+!views
+!public
+!package.json
+!package-lock.json
+!tsconfig.json

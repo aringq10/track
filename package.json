@@ -9,7 +9,7 @@
     "dev:types": "tsc --noEmit --watch --preserveWatchOutput",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "start": "tsx src/index.ts",
+    "start": "node dist/index.js",
     "cli": "tsx src/cli.ts"
   },
   "dependencies": {

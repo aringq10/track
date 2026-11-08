@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+cd "$(dirname "$(realpath "$0")")"
+
+usage () {
+    cat <<EOF
+$0 [command]
+commands:
+    ps     list containers
+    build  build 'track' image
+    sh     interactive shell
+    run    run 'track' container
+    rm     remove container
+    start  start container
+    stop   stop container
+EOF
+}
+
+case "$1" in
+    (ps) docker ps -a ;;
+    (build) docker build -t track . ;;
+    (sh)
+        docker run -it --rm \
+            --entrypoint sh \
+            track;;
+    (run)
+        docker run \
+            -d \
+            --env-file .env \
+            -p 127.0.0.1:4321:4321 \
+            -v time-db:/data \
+            --name track \
+            track
+    ;;
+    (rm) docker rm track ;;
+    (start) docker start track ;;
+    (stop) docker stop track ;;
+    (*) usage ;;
+esac
