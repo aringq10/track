@@ -2,6 +2,7 @@ import { Data  } from './lib/data.js';
 import express from "express";
 import { parseDate, WEEK } from './lib/date.js';
 import path from 'node:path';
+import cron, { TaskContext } from "node-cron";
 
 const PORT = 4321;
 
@@ -54,3 +55,28 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => console.log(`listening on http://localhost:${PORT}`));
+
+const job = cron.schedule(
+  '*/10 * * * *',
+  async () => await data.update(token),
+  { name: "toggl-fetch", noOverlap: true }
+);
+
+job.once("task:started", () => console.log('scheduler is up'));
+job.on("execution:started", (ctx) => console.log(formatLog(ctx, "started")))
+job.on("execution:finished", (ctx) => console.log(formatLog(ctx, "finished")))
+job.on("execution:failed", (ctx) => console.log(formatLog(ctx, "failed")))
+
+function formatLog(ctx: TaskContext, event: string): string {
+  const info = {
+    event,
+    triggeredAt: ctx.triggeredAt.toISOString(),
+    id: ctx.execution?.id,
+    startedAt: ctx.execution?.startedAt,
+    finishedAt: ctx.execution?.finishedAt,
+    error: ctx.execution?.error?.message,
+    result: ctx.execution?.result
+  }
+
+  return JSON.stringify(info);
+}

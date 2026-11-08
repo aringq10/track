@@ -27,17 +27,19 @@ export class Data {
     }
   }
 
-  async update(token: string) {
+  async update(token: string): Promise<{ p: number, t: number }> {
     const api = new Toggl(token);
 
     const projects = await api.fetchProjects();
     const timeEntries = await api.fetchTimeEntries();
 
-    this.insertProjects(projects);
-    this.insertTimeEntries(timeEntries);
+    this.insertProjects(projects, true);
+    this.insertTimeEntries(timeEntries, true);
+
+    return { p: projects.length, t: timeEntries.length }
   }
 
-  insertProjects(projects: Project[]): boolean {
+  insertProjects(projects: Project[], dontEnd: boolean = false) {
     const stmt = this.database.prepare(
       `INSERT INTO project(id, name)
        VALUES (?, ?)`
@@ -48,22 +50,21 @@ export class Data {
       for (const p of projects) {
         stmt.all(p.id, p.name);
       }
-      this.database.exec('END');
-      return true;
-    } catch {
+      if (!dontEnd) this.database.exec('END');
+    } catch (e) {
       this.database.exec("ROLLBACK");
-      return false;
+      throw e;
     }
   }
 
-  insertTimeEntries(timeEntries: TimeEntry[]): boolean {
+  insertTimeEntries(timeEntries: TimeEntry[], dontBegin: boolean = false) {
     const stmt = this.database.prepare(
       `INSERT INTO time_entry(id, project_id, start, stop, description)
        VALUES (?, ?, datetime(?), datetime(?), ?)`
     );
 
     try {
-      this.database.exec('BEGIN');
+      if (!dontBegin) this.database.exec('BEGIN');
       for (const t of timeEntries) {
         stmt.all(
           t.id,
@@ -74,10 +75,9 @@ export class Data {
         );
       }
       this.database.exec('END');
-      return true;
-    } catch {
+    } catch (e) {
       this.database.exec("ROLLBACK");
-      return false;
+      throw e;
     }
   }
 

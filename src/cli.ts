@@ -3,7 +3,7 @@ import { exit } from 'node:process';
 import path, { resolve } from 'node:path';
 import { Data } from './lib/data.js';
 import { TimeEntriesParams, Toggl } from './lib/toggl.js';
-import { Project, TimeEntry } from './lib/model.js';
+import { Project, TimeEntries } from './lib/model.js';
 import * as z from 'zod';
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
@@ -41,10 +41,15 @@ const actions: Action[]= [
       try {
         const json = await fh.readFile('utf8');
         const projects = z.array(Project).parse(JSON.parse(json));
-        const inserted = data.insertProjects(projects);
+        let failed = false;
+        try {
+          data.insertProjects(projects);
+        } catch {
+          failed = true;
+        }
         console.log(
-          inserted ? `Inserted ${projects.length} projects from ${resolve(fn)}`
-                   : "Insertion failed");
+          !failed ? `Inserted ${projects.length} projects from ${resolve(fn)}`
+                  : "Insertion failed");
       } finally {
         fh.close();
       }
@@ -63,11 +68,16 @@ const actions: Action[]= [
       const fh = await open(fn, 'r');
       try {
         const json = await fh.readFile('utf8');
-        const timeEntries = z.array(TimeEntry).parse(JSON.parse(json));
-        const inserted = data.insertTimeEntries(timeEntries);
+        const timeEntries = TimeEntries.parse(JSON.parse(json));
+        let failed = false;
+        try {
+          data.insertTimeEntries(timeEntries);
+        } catch {
+          failed = true;
+        }
         console.log(
-          inserted ? `Inserted ${timeEntries.length} time entries from ${resolve(fn)}`
-                   : "Insertion failed");
+          !failed ? `Inserted ${timeEntries.length} time entries from ${resolve(fn)}`
+                  : "Insertion failed");
       } finally {
         fh.close();
       }

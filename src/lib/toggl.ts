@@ -4,8 +4,8 @@
 */
 
 import { Buffer } from 'node:buffer';
-import { Project, TimeEntry } from './model.js';
-import { formatDate, WEEK } from './date.js';
+import { Project, TimeEntries, TimeEntry } from './model.js';
+import { formatDate, DAY } from './date.js';
 import * as z from 'zod';
 
 export type TimeEntriesParams = number | Date | [Date, Date];
@@ -23,7 +23,7 @@ export class Toggl {
     return z.array(Project).parse(data);
   }
 
-  async fetchTimeEntries(params: TimeEntriesParams = Date.now() - WEEK): Promise<TimeEntry[]> {
+  async fetchTimeEntries(params: TimeEntriesParams = Date.now() - DAY): Promise<TimeEntry[]> {
     let p: Record<string, string>;
 
     if (typeof params === "number") {
@@ -41,7 +41,7 @@ export class Toggl {
 
     let data = await this.fetch("me/time_entries", p);
 
-    return z.array(TimeEntry).parse(data);
+    return TimeEntries.parse(data);
   }
 
   async fetch(endpoint: string, params: Record<string, string> = {}): Promise<any> {
