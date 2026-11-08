@@ -28,7 +28,7 @@ case "$1" in
             -d \
             --env-file .env \
             -p 127.0.0.1:4321:4321 \
-            -v time-db:/data \
+            -v track-data:/data \
             --name track \
             track
     ;;
