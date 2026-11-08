@@ -14,7 +14,9 @@ const dir = import.meta.dirname;
 const token = process.env.API_TOKEN;
 if (!token) throw new Error("API_TOKEN is not set");
 
-const data = new Data(path.join(dir, "../main.db"));
+const dbPath = process.env.DB_PATH ?? path.join(dir, "../main.db");
+
+const data = new Data(dbPath);
 const api = new Toggl(token);
 
 type Action = [

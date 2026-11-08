@@ -10,7 +10,9 @@ const dir = import.meta.dirname;
 const token = process.env.API_TOKEN;
 if (!token) throw new Error("API_TOKEN is not set");
 
-const data = new Data(path.join(dir, "../main.db"), path.join(dir, "sql/schema.sql"));
+const dbPath = process.env.DB_PATH ?? path.join(dir, "../main.db");
+
+const data = new Data(dbPath, path.join(dir, "sql/schema.sql"));
 
 /* express server */
 

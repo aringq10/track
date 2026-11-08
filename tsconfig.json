@@ -12,9 +12,9 @@
     "types": ["node", "express"],
 
     // Other Outputs
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    // "sourceMap": true,
+    // "declaration": true,
+    // "declarationMap": true,
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
@@ -29,7 +29,6 @@
     // "noPropertyAccessFromIndexSignature": true,
 
     "strict": true,
-    "jsx": "react-jsx",
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",

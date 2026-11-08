@@ -126,7 +126,7 @@ export class Data {
         ON project_id=project.id
       WHERE date(start) >= ? AND date(start) <= ?
       ORDER BY start`
-      ).all(formatDate(range.from), formatDate(range.to));
+    ).all(formatDate(range.from), formatDate(range.to));
 
     return l.map(t => {
       const startDate = new Date(t.start as string);
@@ -144,12 +144,15 @@ export class Data {
   }
 
   getView(range: { from: Date, to: Date }): PageView {
+    this.database.exec("BEGIN");
     const entriesPerDay = groupTimeEntries(this.getTimeEntries(range)).
       map(({ date, totalDuration, entries }) => ({ date, totalDuration, entries: entries.map(toView) }));
 
     const totalDays = dayRange(range.from, range.to);
 
     const projects = this.getProjectSumarries(range).map(v => summaryToView(v, totalDays));
+
+    this.database.exec("COMMIT");
 
     return {
       startDate: formatDate(range.from),
