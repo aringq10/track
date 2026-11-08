@@ -11,10 +11,10 @@ import { parseDate } from './lib/date.js';
 
 const dir = import.meta.dirname;
 
+const dbPath = process.env.DB_PATH ?? path.join(dir, "../main.db");
+
 const token = process.env.API_TOKEN;
 if (!token) throw new Error("API_TOKEN is not set");
-
-const dbPath = process.env.DB_PATH ?? path.join(dir, "../main.db");
 
 const data = new Data(dbPath);
 const api = new Toggl(token);

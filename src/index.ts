@@ -7,23 +7,26 @@ const PORT = 4321;
 
 const dir = import.meta.dirname;
 
+const dbPath = process.env.DB_PATH ?? path.join(dir, "../main.db");
+const schemaPath = path.join(dir, "../sql/schema.sql");
+const viewsPath = path.join(dir, "../views");
+const staticPath = path.join(dir, "../public");
+
 const token = process.env.API_TOKEN;
 if (!token) throw new Error("API_TOKEN is not set");
 
-const dbPath = process.env.DB_PATH ?? path.join(dir, "../main.db");
-
-const data = new Data(dbPath, path.join(dir, "sql/schema.sql"));
+const data = new Data(dbPath, schemaPath);
 
 /* express server */
 
 const app = express();
 
-app.locals.basedir = path.join(dir, "views");
+app.locals.basedir = viewsPath;
 
-app.set("views", path.join(dir, "views"));
+app.set("views", viewsPath);
 app.set("view engine", "pug");
 
-app.use(express.static(path.join(dir, "public")));
+app.use(express.static(staticPath));
 
 app.get('/', (req, res) => {
   const s = req.query.startDate;
