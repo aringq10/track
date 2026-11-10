@@ -46,10 +46,11 @@ app.get('/', (req, res) => {
   if (badRequest) {
     res.status(400).render("error", { code: 400, message: "Bad Request"});
   } else {
+    const timezone = "+00:00";
     const now = new Date();
     const filter = bothUndefined
-      ? { from: new Date(now.getTime() - WEEK), to: now}
-      : { from: startDate!, to: endDate! };
+      ? { from: new Date(now.getTime() - WEEK), to: now, timezone }
+      : { from: startDate!, to: endDate!, timezone };
     res.render('index', data.getView(filter));
   }
 });

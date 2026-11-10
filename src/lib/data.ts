@@ -16,6 +16,38 @@ export type ProjectSummary = {
   activeDays: number
 }
 
+const getTimeEntriesQuery = `
+  SELECT
+      p.name AS projectName,
+      datetime(t.start, ?1) AS start_s,
+      datetime(t.stop, ?1) AS stop_s,
+      unixepoch(t.stop) - unixepoch(t.start) AS duration,
+      t.description
+  FROM time_entry AS t
+  LEFT JOIN project AS p
+    ON t.project_id=p.id
+  WHERE date(start_s) >= ?2 AND date(start_s) <= ?3
+  ORDER BY start_s DESC`;
+
+const getProjectSummariesQuery = `
+  WITH days AS (
+    SELECT DISTINCT
+      date(datetime(start, ?1)) AS day,
+      name AS projectName,
+      SUM(unixepoch(stop) - unixepoch(start)) AS duration
+    FROM project
+    JOIN time_entry
+      ON project.id=project_id
+    WHERE day >= ?2 AND day <= ?3
+    GROUP BY 1, 2
+  )
+  SELECT
+    projectName,
+    COALESCE(SUM(duration), 0) AS totalDuration,
+    COUNT(*) AS activeDays
+  FROM days
+  GROUP BY 1`;
+
 export class Data {
   database: DatabaseSync;
 
@@ -87,54 +119,28 @@ export class Data {
     ).all() as Project[];
   }
 
-  getProjectSumarries(range: { from: Date, to: Date }): ProjectSummary[] {
-    const query = `
-      WITH days AS (
-        SELECT DISTINCT
-          date(start) AS day,
-          name,
-          SUM(unixepoch(stop) - unixepoch(start)) AS duration
-        FROM project
-        JOIN time_entry
-          ON project.id=project_id
-        WHERE date(start) >= ? AND date(start) <= ?
-        GROUP BY 1, 2
-      )
-      SELECT
-        name AS projectName,
-        SUM(duration) AS totalDuration,
-        COUNT(*) AS activeDays
-      FROM days
-      GROUP BY name;
-    `;
-
-    const l = this.database.prepare(query)
-      .all(formatDate(range.from), formatDate(range.to));
+  getProjectSumarries(filter: { from: Date, to: Date, timezone: string }): ProjectSummary[] {
+    const l = this.database.prepare(getProjectSummariesQuery)
+      .all(filter.timezone, formatDate(filter.from), formatDate(filter.to));
 
     return l.map(p => ({
       projectName: p.projectName as string,
-      totalDuration: (p.totalDuration as number | null) ?? 0,
+      totalDuration: p.totalDuration as number,
       activeDays: p.activeDays as number
     }));
   }
 
-  getTimeEntries(range: { from: Date, to: Date }): TimeEntryExt[] {
-    const l = this.database.prepare(`
-      SELECT *, unixepoch(stop) - unixepoch(start) AS duration
-      FROM time_entry
-      LEFT JOIN project
-        ON project_id=project.id
-      WHERE date(start) >= ? AND date(start) <= ?
-      ORDER BY start DESC`
-    ).all(formatDate(range.from), formatDate(range.to));
+  getTimeEntries(filter: { from: Date, to: Date, timezone: string }): TimeEntryExt[] {
+    const l = this.database.prepare(getTimeEntriesQuery)
+      .all(filter.timezone, formatDate(filter.from), formatDate(filter.to));
 
     return l.map(t => {
-      const startDate = new Date(t.start as string);
-      const stopDate = t.stop
-        ? new Date(t.stop as string)
+      const startDate = new Date((t.start_s as string) + "Z");
+      const stopDate = t.stop_s
+        ? new Date((t.stop_s as string) + "Z")
         : null;
       return {
-        projectName: t.name as string | null,
+        projectName: t.projectName as string | null,
         start: startDate,
         stop: stopDate,
         duration: t.duration as number | null,
@@ -143,20 +149,20 @@ export class Data {
     })
   }
 
-  getView(range: { from: Date, to: Date }): PageView {
+  getView(filter: { from: Date, to: Date, timezone: string }): PageView {
     this.database.exec("BEGIN");
-    const entriesPerDay = groupTimeEntries(this.getTimeEntries(range)).
+    const entriesPerDay = groupTimeEntries(this.getTimeEntries(filter)).
       map(({ date, totalDuration, entries }) => ({ date, totalDuration, entries: entries.map(toView) }));
 
-    const totalDays = dayRange(range.from, range.to);
+    const totalDays = dayRange(filter.from, filter.to);
 
-    const projects = this.getProjectSumarries(range).map(v => summaryToView(v, totalDays));
+    const projects = this.getProjectSumarries(filter).map(v => summaryToView(v, totalDays));
 
     this.database.exec("COMMIT");
 
     return {
-      startDate: formatDate(range.from),
-      endDate: formatDate(range.to),
+      startDate: formatDate(filter.from),
+      endDate: formatDate(filter.to),
       projects,
       entriesPerDay
     }

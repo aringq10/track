@@ -7,7 +7,7 @@ import { Project, TimeEntries } from './lib/model.js';
 import * as z from 'zod';
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { parseDate } from './lib/date.js';
+import { isValidTimezoneOffset, parseDate } from './lib/date.js';
 
 const dir = import.meta.dirname;
 
@@ -95,19 +95,27 @@ const actions: Action[]= [
   ],
   [
     ".listT",
-    "<from> <to>",
+    "<from> <to> [timezone]",
     "list time entries",
     (args) => {
-      if (args.length !== 2) {
+      let timezone = "+00:00";
+      if (args.length !== 2 && args.length !== 3) {
         console.error("incorrect usage");
         return;
+      } else if (args.length === 3) {
+        if (isValidTimezoneOffset(args[2]!)) {
+          timezone = args[2]!;
+        } else {
+          console.error("invalid timezone");
+          return;
+        }
       }
       const [from, to] = [parseDate(args[0]!), parseDate(args[1]!)]
       if (from === null || to === null || from > to) {
         console.error("invalid dates");
         return;
       }
-      const t = data.getTimeEntries({ from, to });
+      const t = data.getTimeEntries({ from, to, timezone });
       if (t.length === 0) console.log("No time entries");
       else console.table(t);
     }

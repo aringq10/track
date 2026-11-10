@@ -41,6 +41,10 @@ export function parseDate(s: string): Date | null {
   return valid ? d : null;
 }
 
+export function isValidTimezoneOffset(s: string): boolean {
+  return /^[+-](?:[01]\d|2[0-3]):[0-5]\d$/.test(s);
+}
+
 /**
  * Returns the number days between `from` and `to`, inclusive.
  */
