@@ -17,12 +17,12 @@ commands:
     rm     remove container
     start  start container
     stop   stop container
+    logs   container logs
 EOF
 }
 
 case "$1" in
     (ps) docker ps -a ;;
-    (logs) docker logs -f "$cont" ;;
     (build) docker build -t "$image" . ;;
     (sh) docker exec -it "$cont" sh ;;
     (run)
@@ -37,5 +37,6 @@ case "$1" in
     (rm) docker rm "$cont" ;;
     (start) docker start "$cont" ;;
     (stop) docker stop "$cont" ;;
+    (logs) docker logs -f "$cont" ;;
     (*) usage ;;
 esac
