@@ -125,7 +125,7 @@ export class Data {
       LEFT JOIN project
         ON project_id=project.id
       WHERE date(start) >= ? AND date(start) <= ?
-      ORDER BY start`
+      ORDER BY start DESC`
     ).all(formatDate(range.from), formatDate(range.to));
 
     return l.map(t => {
