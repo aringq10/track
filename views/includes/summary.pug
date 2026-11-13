@@ -1,20 +1,50 @@
 div(id="summary")
   if projects.length !== 0
-    table(class="summary-table")
-      thead
-        tr
-          th(class="summary-corner") (#{projects.length})
-          th(class="summary-metric") tot dur
-          th(class="summary-metric") act / tot
-          th(class="summary-metric") dur / tot
-          th(class="summary-metric") dur / act
-      tbody
-        each p in projects
-          tr(class="summary-row")
-            th(class="summary-project" scope="row") #{p.projectName}
-            td(class="summary-value") #{p.totalDuration}
-            td(class="summary-value") #{p.activeDays}/#{p.totalDays} #{p.pctgActTot}%
-            td(class="summary-value") #{p.durPerDay}
-            td(class="summary-value") #{p.durPerAct}
+    each p in projects
+      div(class="project")
+        div(class="project-header")
+          div(class="project-name") #{p.projectName}
+        div(class="project-summary")
+          table(class="project-table")
+            thead
+              tr
+                th tot dur
+                th act / tot
+                th dur / tot
+                th dur / act
+            tbody
+              tr
+                td #{p.totalDuration}
+                td #{p.activeDays}/#{p.totalDays} #{p.pctgActTot}%
+                td #{p.durPerDay}
+                td #{p.durPerAct}
+//          hr
+//          div(class="project-daily")
+//            div(class="active")
+//            div(class="active")
+//            div(class="active")
+//            div(class="inactive")
+//            div(class="inactive")
+//            div(class="active")
+//            div(class="active")
+//            div(class="active")
+//            div(class="active")
+//            div(class="inactive")
+//            div(class="inactive")
+//            div(class="active")
+//            div(class="active")
+//            div(class="active")
+//            div(class="active")
+//            div(class="inactive")
+//            div(class="inactive")
+//            div(class="active")
+//            div(class="active")
+//            div(class="active")
+//            div(class="active")
+//            div(class="inactive")
+//            div(class="inactive")
+//            div(class="active")
+
+
   else
     div(id="summary-empty") No summaries
