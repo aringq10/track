@@ -1,6 +1,6 @@
 import { Data  } from './lib/data.js';
 import express from "express";
-import { parseDate, WEEK } from './lib/date.js';
+import { parseDate, DAYS_6 } from './lib/date.js';
 import path from 'node:path';
 import cron, { TaskContext } from "node-cron";
 
@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
     const timezone = "+00:00";
     const now = new Date();
     const filter = bothUndefined
-      ? { from: new Date(now.getTime() - WEEK), to: now, timezone }
+      ? { from: new Date(now.getTime() - DAYS_6), to: now, timezone }
       : { from: startDate!, to: endDate!, timezone };
     res.render('index', data.getView(filter));
   }

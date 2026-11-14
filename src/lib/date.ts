@@ -1,5 +1,5 @@
 export const DAY = 24 * 60 * 60 * 1000;
-export const WEEK = 7 * DAY;
+export const DAYS_6 = 6 * DAY;
 
 /**
  * Return `d` in YYYY-MM-DD format.
