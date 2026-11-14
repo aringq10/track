@@ -13,7 +13,8 @@ export type TimeEntryExt = Omit<TimeEntry, "id" | "project_id"> & {
 export type ProjectSummary = {
   projectName: string,
   totalDuration: number,
-  activeDays: number
+  activeDays: number,
+  days: boolean[]
 }
 
 const getTimeEntriesQuery = `
@@ -30,23 +31,25 @@ const getTimeEntriesQuery = `
   ORDER BY start_s DESC`;
 
 const getProjectSummariesQuery = `
-  WITH days AS (
-    SELECT DISTINCT
-      date(datetime(start, ?1)) AS day,
-      name AS projectName,
-      SUM(unixepoch(stop) - unixepoch(start)) AS duration
-    FROM project
-    JOIN time_entry
-      ON project.id=project_id
-    WHERE day >= ?2 AND day <= ?3
-    GROUP BY 1, 2
-  )
+  WITH RECURSIVE
+    dates(d) AS (
+       SELECT ?2
+       UNION ALL
+       SELECT date(d, '1 day') AS d_t FROM dates
+        WHERE d_t <= ?3
+    )
   SELECT
-    projectName,
-    COALESCE(SUM(duration), 0) AS totalDuration,
-    COUNT(*) AS activeDays
-  FROM days
-  GROUP BY 1`;
+      d AS day,
+      p.name AS projectName,
+      COUNT(t.id) AS entriesCount,
+      COALESCE(SUM(unixepoch(t.stop) - unixepoch(t.start)), 0) AS totalDuration
+  FROM dates
+  LEFT JOIN project AS p
+      ON TRUE
+  LEFT JOIN time_entry AS t
+      ON p.id=t.project_id AND d=date(t.start, ?1)
+  GROUP BY 1, 2
+  ORDER BY 2, 1`;
 
 export class Data {
   database: DatabaseSync;
@@ -121,13 +124,33 @@ export class Data {
 
   getProjectSumarries(filter: { from: Date, to: Date, timezone: string }): ProjectSummary[] {
     const l = this.database.prepare(getProjectSummariesQuery)
-      .all(filter.timezone, formatDate(filter.from), formatDate(filter.to));
+      .all(filter.timezone, formatDate(filter.from), formatDate(filter.to)) as {
+        day: string,
+        projectName: string,
+        entriesCount: number,
+        totalDuration: number
+      }[];
 
-    return l.map(p => ({
-      projectName: p.projectName as string,
-      totalDuration: p.totalDuration as number,
-      activeDays: p.activeDays as number
-    }));
+    const byProject: Map<string, ProjectSummary> = new Map();
+
+    for (const i of l) {
+      let p: ProjectSummary | undefined;
+      const activeDay = i.entriesCount !== 0;
+      if ((p = byProject.get(i.projectName)) !== undefined) {
+        p.totalDuration += i.totalDuration;
+        p.activeDays += activeDay ? 1 : 0;
+        p.days.push(activeDay);
+      } else {
+        byProject.set(i.projectName, {
+          projectName: i.projectName,
+          totalDuration: i.totalDuration,
+          activeDays: activeDay ? 1 : 0,
+          days: [activeDay]
+        })
+      }
+    }
+
+    return Array.from(byProject.values());
   }
 
   getTimeEntries(filter: { from: Date, to: Date, timezone: string }): TimeEntryExt[] {

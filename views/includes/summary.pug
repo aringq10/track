@@ -18,33 +18,13 @@ div(id="summary")
                 td #{p.activeDays}/#{p.totalDays} #{p.pctgActTot}%
                 td #{p.durPerDay}
                 td #{p.durPerAct}
-//          hr
-//          div(class="project-daily")
-//            div(class="active")
-//            div(class="active")
-//            div(class="active")
-//            div(class="inactive")
-//            div(class="inactive")
-//            div(class="active")
-//            div(class="active")
-//            div(class="active")
-//            div(class="active")
-//            div(class="inactive")
-//            div(class="inactive")
-//            div(class="active")
-//            div(class="active")
-//            div(class="active")
-//            div(class="active")
-//            div(class="inactive")
-//            div(class="inactive")
-//            div(class="active")
-//            div(class="active")
-//            div(class="active")
-//            div(class="active")
-//            div(class="inactive")
-//            div(class="inactive")
-//            div(class="active")
-
+          hr
+          div(class="project-daily")
+            each d in p.days
+              if d
+                div(class="active")
+              else
+                div(class="inactive")
 
   else
     div(id="summary-empty") No summaries

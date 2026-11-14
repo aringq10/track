@@ -27,7 +27,8 @@ export interface ProjectSummaryView {
   activeDays: string,
   pctgActTot: string, // activeDays / totalDays
   durPerDay: string,
-  durPerAct: string
+  durPerAct: string,
+  days: boolean[]
 }
 
 export function toView(t: TimeEntryExt): TimeEntryView {
@@ -49,7 +50,8 @@ export function summaryToView(p: ProjectSummary, totalDays: number): ProjectSumm
     activeDays: p.activeDays.toString(),
     pctgActTot,
     durPerDay: formatDuration(p.totalDuration / totalDays),
-    durPerAct: formatDuration(p.totalDuration / p.activeDays)
+    durPerAct: formatDuration(p.totalDuration / p.activeDays),
+    days: p.days
   }
 }
 
