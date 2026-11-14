@@ -39,9 +39,11 @@ app.get('/', (req, res) => {
     ? parseDate(e)
     : null;
   const bothUndefined = s === undefined && e === undefined;
-  const badRequest =
+  let badRequest =
     (startDate === null || endDate === null) &&
     !bothUndefined;
+
+  if (!badRequest && !bothUndefined) badRequest = startDate!.getTime() > endDate!.getTime();
 
   if (badRequest) {
     res.status(400).render("error", { code: 400, message: "Bad Request"});

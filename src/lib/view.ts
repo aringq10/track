@@ -42,15 +42,17 @@ export function toView(t: TimeEntryExt): TimeEntryView {
 }
 
 export function summaryToView(p: ProjectSummary, totalDays: number): ProjectSummaryView {
-  const pctgActTot = (100 * (p.activeDays / totalDays)).toFixed(1);
+  const tz = totalDays === 0;
+  const az = p.activeDays === 0;
+  const pctgActTot = tz ? "-.-%" : (100 * (p.activeDays / totalDays)).toFixed(1);
   return {
     projectName: p.projectName,
     totalDuration: formatDuration(p.totalDuration),
     totalDays: totalDays.toString(),
     activeDays: p.activeDays.toString(),
     pctgActTot,
-    durPerDay: formatDuration(p.totalDuration / totalDays),
-    durPerAct: formatDuration(p.totalDuration / p.activeDays),
+    durPerDay: tz ? formatDuration() : formatDuration(p.totalDuration / totalDays),
+    durPerAct: az ? formatDuration() : formatDuration(p.totalDuration / p.activeDays),
     days: p.days
   }
 }
